@@ -20,6 +20,7 @@
          ((< a b) b)
          (else -1))
    (+ a 1)) ; 16
+; ---
 
 ; Exercise 1.2
 (/
@@ -33,6 +34,8 @@
      (- 6 2)
      (- 2 7))
   )
+; ---
+
 ; Exercise 1.3
 (define (square x)
   (* x x))
@@ -47,12 +50,14 @@
   (if (>= a b)
     (sum-of-squares a (if (>= b c) b c))
     (sum-of-squares b (if (>= a c) a c))))
+; ---
 
 ; Exercise 1.4
 ; if b is larger than 0 the operation is PLUS otherwise MINUS.
 ; this is equivalent to (+ a (abs b))
 (define (a-plus-abs-b a b)
   ((if (> b 0) + -) a b))
+; ---
 
 ; Exercise 1.5
 (define (p) (p))
@@ -64,11 +69,13 @@
 ; to evaluate (p) which will keep evaluating to (p) indefinitely causing an
 ; infinite loop. Normal-order will only evaluate when the value is needed.
 ; In this case the value is never needed so (test 0 (p)) evaluates to 0.
+; ---
 
 ; Exercise 1.6
 ; With new-if the interpreter will always evaluate all it's arguments, and thus
 ; will keep calling sqrt-iter causing an infinite loop.
 ; Newtons method for improving the guess of nth root of x.
+; ---
 
 ; Exercise 1.7
 (define (abs x)
@@ -81,32 +88,25 @@
         ((< y 0) (/ 1 (pow x (abs y))))
         (else (* x (pow x (dec y))))))
 
-(define (improve-quess n guess x)
-  (/ (+
-       (/ x (pow guess (dec n)))
-       (* (dec n) guess))
-     n))
-
-(define (good-enough? n guess x)
-  (<=
-    (abs (- (pow guess n) x))
-    0.001))
-
-(define (good-enough2? n guess x)
-  (<=
-    (abs (- (improve-quess n guess x) guess))
-     (* guess .001)))
-
-(define (root-iter n guess x)
-  (cond ((= x 0) 0)
-        ((good-enough? n guess x) guess)
-        (else (root-iter n (improve-quess n guess x) x))))
-
 (define (nroot n)
-  (lambda (x) (root-iter n 1.0 x)))
+  (lambda (x)
+    (define (good-enough? n guess)
+      (<= (abs (- (pow guess n) x)) 0.001))
+    (define (good-enough2? n guess)
+      (<=
+        (abs (- (improve-quess n guess) guess))
+         (* guess .001)))
+    (define (improve-quess n guess)
+      (/ (+ (/ x (pow guess (dec n)))
+            (* (dec n) guess))
+         n))
+    (define (root-iter n guess)
+      (cond ((= x 0) 0)
+            ((good-enough2? n guess) guess)
+            (else (root-iter n (improve-quess n guess)))))
+    (root-iter n 1.0)))
 
-(define (sqroot x)
-  ((nroot 2) x))
+(define sqroot (nroot 2))
 
 (define (test-sqroot x)
   (abs (- x (square (sqroot x)))))
@@ -131,7 +131,75 @@
 ; good-enough? would result in an infinite loop with very large numbers,
 ; good-enough2? does not. This is because the computer cannot accurately
 ; represent small differences between very large numbers.
+; ---
 
 ; Exercise 1.8
 ; See the previous exercise for the definition of nroot. I've tried to make it
 ; general but perhaps this is not the right way.
+; ---
+
+; Exercise 1.9
+; (define (+ a b)
+;   (if (= a 0) b (inc (+ (dec a) b))))
+; (+ 4 5)
+; (inc (+ 3 5))
+; (inc (inc (+ 2 5))
+; (int (inc (inc (+ 1 5))))
+; (inc (inc (inc (inc (+ 0 5)))))
+; (inc (inc (inc (inc 5))))
+; (inc (inc (inc 6)))
+; (inc (inc 7))
+; (inc 8)
+; 9
+; (define (+ a b)
+;   (if (= a 0) b (+ (dec a) (inc b))))
+; (+ 4 5)
+; (+ 3 6)
+; (+ 2 7)
+; (+ 1 8)
+; (+ 0 9)
+; 9
+; ---
+
+; Exercise 1.10
+(define (A x y)
+  (cond ((= y 0) 0)
+        ((= x 0) (* 2 y))
+        ((= y 1) 2)
+        (else (A (- x 1) (A x (- y 1))))))
+
+; (A 1 10) -> 1024
+; (A 2 4) -> 65536
+; (A 3 3) -> 65536
+
+(define (f n) (A 0 n)) ; 2n
+(define (g n) (A 1 n)) ; 2n when n > 0, 0 when n = 0
+(define (h n) (A 2 n)) ; 2^h(n-1) when n > 1, 2 when n == 1, 0 when n == 0
+
+; Exercise 1.11
+; This is pretty much the exact same thing as fibonachi.
+; Recursive
+(define (f-recursive n)
+  (if (< n 3)
+    3
+    (+ (f (- n 1))
+       (f (- n 2))
+       (f (- n 3)))))
+
+; Iterative
+(define (f-iterative n)
+  (iter 3 3 3 n)
+
+  (define (iter a b c test)
+    (if (< test 3)
+      c
+      (iter b c (+ a b c) (- test 1)))))
+; ---
+
+; Exercise 1.12
+(define (pascal row col)
+  (cond ((or (< col 1) (< row col)) #f)
+        ((or (= col 1) (= col row)) 1)
+        (else (+ (pascal (- row 1) col)
+                 (pascal (- row 1) (- col 1))))))
+; ---
