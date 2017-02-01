@@ -1,4 +1,10 @@
 # SICP
 
 My attempt at working through Structure and Interpretation of Computer
-Programs.
+Programs by Harold Abelson, Gerald Jay Sussman, and Julie Sussman. I am
+using Racket.
+
+## Resources
+
+* [Book](https://github.com/sarabander/sicp-pdf)
+* [Racket sicp package](https://docs.racket-lang.org/sicp-manual/index.html)

@@ -106,13 +106,13 @@
             (else (root-iter n (improve-quess n guess)))))
     (root-iter n 1.0)))
 
-(define sqroot (nroot 2))
+(define sqrt (nroot 2))
 
-(define (test-sqroot x)
-  (abs (- x (square (sqroot x)))))
+(define (test-sqrt x)
+  (abs (- x (square (sqrt x)))))
 
 ; for the following values the good enough2 version
-; (abs (- value (square (sqroot value))))
+; (abs (- value (square (sqrt value))))
 ; is much smaller
 ;
 ; value       good-enough            good-enough2
@@ -178,7 +178,6 @@
 
 ; Exercise 1.11
 ; This is pretty much the exact same thing as fibonachi.
-; Recursive
 (define (f-recursive n)
   (if (< n 3)
     3
@@ -186,20 +185,74 @@
        (f (- n 2))
        (f (- n 3)))))
 
-; Iterative
 (define (f-iterative n)
-  (iter 3 3 3 n)
-
   (define (iter a b c test)
     (if (< test 3)
       c
-      (iter b c (+ a b c) (- test 1)))))
+      (iter b c (+ a b c) (dec test))))
+  (iter 3 3 3 n))
+
 ; ---
 
 ; Exercise 1.12
 (define (pascal row col)
   (cond ((or (< col 1) (< row col)) #f)
         ((or (= col 1) (= col row)) 1)
-        (else (+ (pascal (- row 1) col)
-                 (pascal (- row 1) (- col 1))))))
+        (else (+ (pascal (dec row) col)
+                 (pascal (dec row) (dec col))))))
 ; ---
+
+; Exercise 1.13
+; https://en.wikipedia.org/wiki/Mathematical_induction
+(define (fib n)
+  (define (iter a b count)
+    (if (= count 0)
+      b
+      (iter (+ a b) a (- count 1))))
+  (iter 1 0 n))
+
+(define sqrt5 (sqrt 5))
+(define psi (/ (+ 1 sqrt5) 2))
+(define phi (/ (- 1 sqrt5) 2))
+(define (closest n) (/ (pow psi n) sqrt5))
+(define (prove-for-n n)
+  (= (fib n)
+     (/ (- (pow psi n) (pow phi n))
+        sqrt5)))
+
+; 1. The basis (base case): prove that the statement holds for the first
+; natural number n. Usually, n = 0 or n = 1, rarely, n = –1 (although not a
+; natural number, the extension of the natural numbers to –1 is still a
+; well-ordered set).
+(prove-for-n 0) ; #t
+
+; 2. The inductive step: prove that, if the statement holds for some natural
+; number n, then the statement holds for n + 1.
+((lambda (n) (prove-for-n (inc n))) 5) ; #t
+
+; For the following I read the following for reference. I am not familiar
+; with mathematical proofs.
+; http://www.billthelizard.com/2009/12/sicp-exercise-113-fibonacci-and-golden.html
+;
+; Now prove that (closest n is infact the closest integer to (fib n)
+; We can rewrite the internals for prove-for-n as follows
+
+(lambda (n)
+  (= (- (fib n)
+        (/ (pow psi n) sqrt5))
+     (/ (pow phi n) sqrt5))) ; The difference
+
+; To prove that (fib n) is the closet integer to (/ (pow psi n) sqrt5)
+; we have to prove that the difference is always smaller than (/ 1 2)
+
+(lambda (n) (< (/ (pow phi n) sqrt5)
+               (/ 1 2)))
+
+(lambda (n) (< (pow phi n)
+              (/ sqrt5 2))) ; 1.118...
+
+; phi is -0.618304...
+; (pow phi n) will never exceed 1 for postive n.
+; (pow phi n) will never exceed (/ sqrt 5) for postive n.
+; This the above tests always return true.
+; Thus (fib n) is the closest integer to (/ (pow psi n) sqrt5)
