@@ -29,7 +29,7 @@
 
 (define (good-enough? n guess x)
   (<= (abs (- (improve-quess n guess x) guess))
-     (* guess .001)))
+      (* guess .001)))
 
 (define (root-iter n guess x)
   (cond ((= x 0) 0)

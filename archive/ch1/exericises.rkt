@@ -96,7 +96,7 @@
     (define (good-enough2? n guess)
       (<=
         (abs (- (improve-quess n guess) guess))
-         (* guess .001)))
+        (* guess .001)))
     (define (improve-quess n guess)
       (/ (+ (/ x (pow guess (dec n)))
             (* (dec n) guess))
